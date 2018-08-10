@@ -4,6 +4,7 @@ import java.math.BigInteger;
 
 public class User {
 	private String userName;
+	
 	//Public keys
 	private int n;//p*q 
 	private int e;//exponent
@@ -11,6 +12,7 @@ public class User {
 	//Private key
 	private int d;//decrypt key
 	
+	KeyGeneratorRSA keyGenertor;
 	//Other variables
 	private int p;//prime 1
 	private int q;//prime 2
@@ -43,6 +45,7 @@ public class User {
 
 	//Constructor
 	public User(String userName, int encryptionLevel){
+		keyGenertor = new KeyGeneratorRSA();
 		setUserName(userName);
 		generatePublicKeys(encryptionLevel);
 		generatePrivateKey();

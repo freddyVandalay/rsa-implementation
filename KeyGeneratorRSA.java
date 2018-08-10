@@ -31,9 +31,9 @@ public class KeyGeneratorRSA {
 	//private String send_message;
 	private StringBuilder message;
 	//Array that store the message to be sent
-	private int [] pT;
+	private int [] pT; //plainText
 	//Array that store the enrypted message to be sent
-	public BigInteger [] cT;
+	public BigInteger [] cT; //cypherText
 
 	//Authentication variables for part 2
 	private int currentNonce;
@@ -42,12 +42,10 @@ public class KeyGeneratorRSA {
 	private int bE;
 
 	//Constructor
-	public KeyGeneratorRSA(String userName, int encryptionLevel){
-		setUserName(userName);
+	public KeyGeneratorRSA(int encryptionLevel){
 		generatePublicKeys(encryptionLevel);
 		generatePrivateKey();
 		
-		System.out.println(">>>" + userName + "<<< ");
 		System.out.println("Public Keys:");
 		System.out.println("n = " + n);
 		System.out.println("e = " + e);
