@@ -3,7 +3,11 @@ import java.util.Scanner;
 import java.math.BigInteger;
 
 public class KeyGeneratorRSA {
-	private String userName;
+
+	private String encryptionLevel;
+	private int weak = 1;
+	private int strong = 2;
+	
 	//Public keys
 	private int n;//p*q 
 	private int e;//exponent
@@ -17,12 +21,14 @@ public class KeyGeneratorRSA {
 	private int phiN;
 	private int phiP;
 	private int phiQ;
+
 	//used for weak encryption
 	private int smallMinPrime = 10;
 	private int smallMaxPrime = 99;
 	//used for strong encryption
 	private int largeMinPrime = 1000;
 	private int largeMaxPrime = 9999;
+	
 	//used to generate public key E
 	private int minEPrime = 2;
 	private int maxEPrime = 49;
@@ -42,10 +48,30 @@ public class KeyGeneratorRSA {
 	private int bE;
 
 	//Constructor
-	public KeyGeneratorRSA(int encryptionLevel){
-		generatePublicKeys(encryptionLevel);
+	public KeyGeneratorRSA(){
+		this.encryptionLevel=strong;	
+		generatePublicKeys(this.encryptionLevel);
 		generatePrivateKey();
+
+		System.out.println("Public Keys:");
+		System.out.println("n = " + n);
+		System.out.println("e = " + e);
 		
+		/*Debug*/ /*
+		System.out.println(">>>Variables<<< ");
+		System.out.println("p = " + p);
+		System.out.println("q = " + q);
+		System.out.println("n = " + n);
+		System.out.println("phiN = " + phiN);
+		System.out.println("e = " + e);
+		System.out.println("d = " + d);
+		*/
+	}
+	public KeyGeneratorRSA(int encryptionLevel){
+		setEncryptionLevel(encryptionLevel);
+		generatePublicKeys(this.encryptionLevel);
+		generatePrivateKey();
+
 		System.out.println("Public Keys:");
 		System.out.println("n = " + n);
 		System.out.println("e = " + e);
@@ -61,12 +87,33 @@ public class KeyGeneratorRSA {
 		*/
 	}
 
-	private String setUserName(String userName){
-		String this.userName = userName;
-		
+	private void setEncryptionLevel(int encryptionLevel){
+		switch (encryptionLevel){
+			case 1: this.encryptionLevel = this.weak; break;
+			case 2: this.encryptionLevel = this.strong; break;
+		}
 	}
-	public String getUserName(){
-		return this.userName;
+
+	public String getEncryptionLevel(){
+		return this.encryptionLevel;
+	}
+
+	private void generatePublicKeys(){
+		//Weak decrytion
+		if (this.encryptionLevel.equals(weak)){
+			p=findPrime(smallMinPrime,smallMaxPrime);
+			q=findPrime(smallMinPrime,smallMaxPrime);
+		}
+		//Strong decryption
+		else if (this.encryptionLevel.equals(strong)){
+			p=findPrime(largeMinPrime,largeMaxPrime);
+			q=findPrime(largeMinPrime,largeMaxPrime);
+		}
+
+		//calculate variables
+		calculateN();
+		calculatePhiN();
+		calculateE();
 	}
 
 	//part 2 method
@@ -85,48 +132,6 @@ public class KeyGeneratorRSA {
 		return encryptNonce(pT);
 	}
 	
-	//part 2 method
-	public BigInteger[] encryptNonce(int[] nonce){
-		return encrypt(bE, bN, nonce);
-	}
-	
-	//part 2 method
-	public int[] decryptNonce(BigInteger[] nonce){
-		return decrypt(nonce);
-	}
-	
-	//part 2 method
-	public void receiveNonce(BigInteger [] _cT){
-                int[] nonces = decryptNonce(_cT);
-
-		receivedNonce = nonces[0];
-        }
-
-	//part 2 method
-	public void receiveOwnNonce(BigInteger[] nonce){
-		if(verifyNonce(decryptNonce(nonce))){
-			System.out.println("ALICE: BOB AUTHENTICATED");
-		}
-	}
-
-	//part 2 method
-	public boolean verifyNonce(int[] nonce){
-		if(nonce[0] == currentNonce){
-			return true;
-		}
-
-		return false;
-	}
-
-	//part 2 method
-	public BigInteger[] returnNonce(){
-		int[] rN = new int[1];
-		rN[0] = receivedNonce;
-
-		return encryptNonce(rN);
-
-	}
-
 	//public key N
 	public int getN(){
 		/*Debug*/ //System.out.println("Value of n: " + n);
@@ -141,13 +146,9 @@ public class KeyGeneratorRSA {
 	}
 
 	//private key
-	public int getD(){
+	private int getD(){
 		//System.out.println("Value of d: " + d);
 		return d;
-	}
-
-	public BigInteger[] getCT(){
-		return cT;
 	}
 
 	//public key N
@@ -160,47 +161,10 @@ public class KeyGeneratorRSA {
 
 	}
 
-	private void generatePublicKeys(int encryptLevel){
-		//weak decrytion
-		if (encryptLevel == 1){
-			p=findPrime(smallMinPrime,smallMaxPrime);
-			q=findPrime(smallMinPrime,smallMaxPrime);
-		}
-		//"Strong" decryption
-		else{
-			p=findPrime(largeMinPrime,largeMaxPrime);
-			q=findPrime(largeMinPrime,largeMaxPrime);
-		}
-		//calculate variables
-		calculateN();
-		calculatePhiN();
-		calculateE();
-	}
-
 	private void generatePrivateKey(){
 		calculateD();
 	}
 
-	public void sendMessage(String m){
-		message_length = m.length();
-		plainTextHandler(m);
-		encrypt();
-	}
-
-	public void receiveMessage(BigInteger [] _cT){
-		message_length = _cT.length; 
-		cT = _cT;
-		decrypt();
-	}
-
-	public StringBuilder readMessage(){
-		return message;
-	}
-//Start//-----Calculate variables-------///
-	private void calculateN() {
-		n=p*q;
-		/*Debug*/ //System.out.println("phiN is: " + n);
-	}
 
 	//Calculate phiN
 	private void calculatePhiN() {
